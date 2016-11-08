@@ -70,9 +70,9 @@ function particle() {
 
     // Require that rx + ry = const for some nice graphics.
     //var rx = legalise(i % 100);
-    var rx = legalise(100 * Math.cos(2 * Math.PI * (i / 360.0)));
+    var rx = legalise(100 * Math.abs(Math.cos(2 * Math.PI * (i / 360.0))));
     //var ry = legalise(100 - rx);
-    var ry = legalise(100 * Math.sin(2 * Math.PI * (i / 360.0)));
+    var ry = legalise(100 * Math.abs(Math.sin(2 * Math.PI * (i / 360.0))));
 
     svg.insert("ellipse", "rect")
         .attr("cx", m[0])
