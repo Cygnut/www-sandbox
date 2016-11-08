@@ -47,13 +47,15 @@ var shape = getParameterByName("shape") || "circle";
 function particle() {
   var m = d3.mouse(this);
   
+  i = (i + 1);
+  
   if (shape === "circle")
   {
     svg.insert("circle", "rect")
         .attr("cx", m[0])
         .attr("cy", m[1])
         .attr("r", 1e-6)
-        .style("stroke", d3.hsl((i = (i + 1) % 360), 1, .5))
+        .style("stroke", d3.hsl((i % 360), 1, .5))
         .style("stroke-opacity", 1)
       .transition()
         .duration(2000)
@@ -67,8 +69,10 @@ function particle() {
     }
 
     // Require that rx + ry = const for some nice graphics.
-    var rx = legalise(i % 100);
-    var ry = legalise(100 - rx);
+    //var rx = legalise(i % 100);
+    var rx = legalise(100 * Math.cos(2 * Math.PI * (i / 360.0)));
+    //var ry = legalise(100 - rx);
+    var ry = legalise(100 * Math.sin(2 * Math.PI * (i / 360.0)));
 
     svg.insert("ellipse", "rect")
         .attr("cx", m[0])
