@@ -39,7 +39,7 @@ svg.append("rect")
 
 function particle() {
   var m = d3.mouse(this);
-
+/* For a circle:
   svg.insert("circle", "rect")
       .attr("cx", m[0])
       .attr("cy", m[1])
@@ -52,7 +52,32 @@ function particle() {
       .attr("r", 100)
       .style("stroke-opacity", 1e-6)
       .remove();
-
+*/
+  
+  // Require that rx + ry = const for some nice graphics.
+  
+  function legalise(value) {
+    return Math.max(Math.min(value, 100), 1e-6);
+  }
+  
+  var rx = legalise(i % 100);
+  var ry = legalise(100 - rx);
+  
+  svg.insert("ellipse", "rect")
+      .attr("cx", m[0])
+      .attr("cy", m[1])
+      .attr("rx", rx)
+      .attr("ry", ry)
+      .style("stroke", d3.hsl((i = (i + 1) % 360), 1, .5))
+      .style("stroke-opacity", 1)
+    .transition()
+      .duration(2000)
+      .ease(Math.sqrt)
+      .attr("rx", legalise(100 - rx))
+      .attr("ry", legalise(100 - ry))
+      .style("stroke-opacity", 1e-6)
+      .remove();
+  
   d3.event.preventDefault();
 }
 
