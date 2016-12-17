@@ -1,0 +1,46 @@
+<html>
+	<head>
+		<script type="text/javascript" src="orInclude.js">
+		</script>
+		<script type="text/javascript">
+			$(document).ready(function() {
+				var ids = getURLParameter("ids");
+								
+				or_aux_datafileDetail(
+					ids, 
+					function(data) { setData(data, "or_aux_datafileDetail") }
+					);
+				
+				or_aux_controlPanelLinks(
+					ids
+					,function(data) { setData(data, "or_aux_controlPanelLinks") }
+					,$.param({ simpleFilter : 'link.linkId:equals:2' })
+					);
+				
+				or_aux_linkedURLForDatafile(
+					ids
+					,function(data) { setData(data, "or_aux_linkedURLForDatafile") }
+					,$.param({ simpleFilter : 'linkedURL.isLinked:equals:true' })
+					);
+				
+				var menuId = getURLParameter("menuId");
+				or_aux_MenuLinks(
+					menuId
+					,function(data) { setData(data, "or_aux_MenuLinks") }
+					,$.param({ simpleFilter : 'linkedURLs.menuDatafileExists:equals:true' })
+					);
+			});
+			
+			function setData(data, id)
+			{
+				$("#" + id).text(JSON.stringify(data));
+			}			
+		</script>
+	</head>
+	<body>
+		<div id="or_aux_datafileDetail"></div>
+		<div id="or_aux_controlPanelLinks"></div>
+		<div id="or_aux_linkedURLForDatafile"></div>
+		<div id="or_aux_MenuLinks"></div>
+	</body>
+</html>
