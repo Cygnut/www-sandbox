@@ -1,0 +1,26 @@
+<html>
+	<head>
+		<title>dumpQueryParameters</title>
+		<script type="text/javascript" src="orInclude.js">
+		</script>
+		<script type="text/javascript">
+			
+			
+			$(document).ready(function() {
+				try
+				{
+					$("#text").append(decodeURI(location.search));
+				}
+				catch (e)
+				{
+					$("#text").append(e.message);
+				}
+			});
+		</script>
+	</head>
+	<body>
+		<h1>Booya:</h1>
+		<div id="text">
+		</div>
+	</body>
+</html>
