@@ -1,0 +1,238 @@
+<html>
+	<head>
+		<title>displayStats</title>
+		
+		<style>
+		table {
+			width:100%;
+		}
+		table, th, td {
+			border: 1px solid black;
+			border-collapse: collapse;
+		}
+		th, td {
+			padding: 5px;
+			text-align: left;
+		}
+		table#log th	{
+			background-color: black;
+			color: white;
+		}		
+		label {
+			width:40px;
+			clear:left;
+			text-align:right;
+			padding-right:10px;
+		}
+		input, label {
+			float:left;
+		}
+		</style>
+		<script	type='text/JavaScript' src='http://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js'></script>
+		<script type="text/javascript">
+			/*
+			
+			TODO : Title
+			TODO : Charts
+			TODO : Drag & Drop
+			TODO : General tidying
+			
+			*/
+			
+			
+			
+			function truncateDecimal(str)
+			{
+				return parseFloat(str).toFixed(3);
+			}
+			
+			// gets a parameter from the URL by name
+			function getURLParameter(name) 
+			{
+				name = name.replace(/[\[]/, "\\\[").replace(/[\]]/, "\\\]");
+				var regex = new RegExp("[\\?&]" + name + "=([^&#]*)"),
+					results = regex.exec(location.search);
+				return results == null ? "" : decodeURIComponent(results[1].replace(/\+/g, " "));
+			}
+			
+			
+			function requestData(path, pathParams, queryParams, callback)
+			{
+				var urlString = path;
+				if (pathParams)
+				{
+					urlString += ("/" + pathParams);
+					if (queryParams)
+					{
+						urlString += ("?" + queryParams);
+					}
+				}
+					
+				// this allows cross domain calls
+				jQuery.support.cors = true;
+				
+				// this is the AJAX call
+				$.ajax({
+					//type: "GET",
+					url: urlString,
+					//data: { responseFormat: "json" },
+					//contentType: "application/json; charset=utf-8",
+					//dataType: "text"
+					dataType: "json"
+				})
+				.always(function(data, textStatus, errorThrown) {
+					callback(data);
+				});		
+			}
+			
+			
+			function requestStats(host, port, callback)
+			{
+				requestData("http://" + host + ":" + port, "System/Stats", "responseFormat=json", callback);
+			}
+			
+			function onRefresh()
+			{
+				refresh();
+			}
+			
+			function onChange()
+			{
+				refresh();
+			}
+			
+			function getTextField(name)
+			{
+				return document.getElementById(name).value;
+			}
+						
+			function refresh()
+			{
+				var host = getTextField("host");
+				var port = getTextField("port");
+				
+				requestStats(host, port, function(data) { onStatsResponse(data); });
+			}
+			
+			function setMessageCountLabel(count)
+			{
+				document.getElementById('messageCount').innerHTML = count + " message(s) shown";
+			}
+			
+			function addNextCell(row, text)
+			{
+				var cell = row.insertCell(row.cells.length);
+				cell.innerHTML = text;
+			}
+			
+			function getRowColor(type)
+			{
+				if (type === "error")
+					//return "#FF8080";
+					return "#FFB2B2";
+				else if (type === "warning")
+					//return "#FFFF80";
+					return "#FFFF99";
+				else return "#FFFFFF";
+			}
+			
+			function addNextCell(row, text)
+			{
+				var cell = row.insertCell(row.cells.length);
+				cell.innerHTML = text;
+			}
+			
+			function onStatsResponse(data)
+			{
+				var tableArea = document.getElementById("tableArea");
+				// Remove all content from tableArea:
+				while(tableArea.firstChild)
+					tableArea.removeChild(tableArea.firstChild)
+				
+				// Populate the UI:
+				if (!data.hasOwnProperty("Stats"))
+					return;
+				
+				var titleText = tableArea.appendChild(document.createElement("p"));
+				titleText.innerHTML = "Captured at " + data.Stats.WhenCaptured + " (last reset at " + data.Stats.WhenReset + ")";
+				
+				
+				if (!data.Stats.Methods.hasOwnProperty("children"))
+					return;
+				
+				for (var i = 0; i < data.Stats.Methods.children.length; ++i)
+				{
+					var method = data.Stats.Methods.children[i].Method;
+					
+					var methodTitle = tableArea.appendChild(document.createElement("h2"));
+					methodTitle.innerHTML = method.Name;
+					
+					tableArea.appendChild(document.createElement("p")).innerHTML = "Calls: " + method.TotalCalls;
+					tableArea.appendChild(document.createElement("p")).innerHTML = "Average: " + truncateDecimal(method.Average) + "ms";
+					
+					if (!method.hasOwnProperty("children"))
+						continue;
+					
+					for (var j = 0; j < method.children.length; ++j)
+					{
+						var calls = method.children[j].Calls;
+						
+						tableArea.appendChild(document.createElement("h4")).innerHTML = "Top " + data.Stats.TopMaxCalls + " " + calls.Type;
+						
+						var table = tableArea.appendChild(document.createElement("table"));
+						//tableArea.appendChild(document.createElement("br"));
+						var header = table.createTHead();
+						
+						var headerRow = header.insertRow();
+						addNextCell(headerRow, "<b>Time Taken (ms)</b>");
+						addNextCell(headerRow, "<b>Args</b>");
+						
+						// TODO : Ensure this stuff is ordered (I think it already should be!!)
+						for (var k = 0; k < calls.children.length; ++k)
+						{
+							var call = calls.children[k].Call;
+
+							var row = header.insertRow();
+							addNextCell(row, truncateDecimal(call.TimeTaken));
+							addNextCell(row, call.Args);
+						}
+						
+						tableArea.appendChild(document.createElement("br"));
+					}
+					
+					
+				}
+			}
+			
+			
+			$(document).ready(function() {
+				
+				// Initialise the form:
+				if (location.hostname)
+					$("#host").val(location.hostname);
+				
+				if (location.port != null && location.port != 0 && location.port != "0" && location.port != "")
+					$("#port").val(location.port);
+					
+				refresh();
+			});
+			
+		</script>
+	</head>
+	<body>
+		<div>
+			<form>
+				<fieldset>
+					<legend>Connection</legend>
+					<p><label>Host</label><input type="text" id="host" value="localhost" onChange="onChange()"/></p>
+					<p><label>Port</label><input type="text" id="port" value="3131" onChange="onChange()"/></p>
+				</fieldset>
+				<!--<br>
+				<input type="button" value="Go" onclick="refresh()"/></button>
+				<br>-->
+			</form>
+		</div>
+		<div id="tableArea">
+		</div>
+	</body>
+</html>
