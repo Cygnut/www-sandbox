@@ -1,0 +1,47 @@
+<html>
+	<head>
+		<title>testor_logUpdates</title>
+		<script type="text/javascript" src="orInclude.js">
+		</script>
+		<script type="text/javascript">
+		
+		
+			$(document).ready(function() {
+				var screenIds = getURLParameter("screenIds");
+				var uuid = getURLParameter("uuid");
+				
+				document.title = screenIds + " [" + uuid + "]";
+				
+				appendLine("Subscribed to screen ids=" + screenIds + " with uuid=" + uuid);
+				
+				or_Screen_connect_register(
+					function(data, textStatus, errorThrown) { callbackData(data, textStatus, errorThrown) },
+					uuid,
+					screenIds.split(","),
+					"!");
+			});
+			
+			function appendLine(str)
+			{
+				// Append the entry to the bottom of the div.
+				var d = new Date();
+				var timeString = d.getHours() + ":" + d.getMinutes() + ":" + d.getSeconds();
+				$("#text").append("<pre>[" + timeString + "] " + str + "</pre>");
+				
+				// Then ensure it's visible by scrolling to the bottom of the div.
+				window.scrollTo(0,document.body.scrollHeight);
+			}
+			
+			function callbackData(data, textStatus, errorThrown) 
+			{
+				// Ignore initial updates only used to set up the long polling.
+				if (data.Screen.requestMsgId != "!")
+					appendLine(JSON.stringify(data, null, "\t"))
+			}
+		</script>
+	</head>
+	<body>
+		<div id="text">
+		</div>
+	</body>
+</html>
