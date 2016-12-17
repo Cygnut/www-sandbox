@@ -1,2 +1,2 @@
 # www-sandbox
-Sandbox for web apps
+Sandbox for web apps.
