@@ -1,0 +1,55 @@
+<html>
+	<head>
+		<title>testor_logging</title>
+		
+		<style>
+		label {
+			width:60px;
+			clear:left;
+			text-align:right;
+			padding-right:10px;
+		}
+		input, label {
+			float:left;
+		}		
+		</style>
+		<script type="text/javascript" src="orInclude.js">
+		</script>
+		<script type="text/javascript">
+
+			function send()
+			{
+				var msg = document.getElementById("msg").value;
+				var level = document.getElementById("level").value;
+				
+				if (level === "error")
+					or_aux_logError(msg);
+				else if (level === "warning")					
+					or_aux_logWarn(msg);
+				else if (level === "information")
+					or_aux_logInfo(msg);
+			}
+			
+		</script>
+	</head>
+	<body>
+		<div>
+		
+			<form>
+			<label>Message</label><input type="text" id="msg">
+			<br>
+			<br>
+			<label>Level</label>
+			<select id="level" required>
+			  <option value="error">Error</option>
+			  <option value="warning">Warning</option>
+			  <option value="information">Information</option>
+			</select>
+			<br>
+			<br>
+			<button onclick="send()">Log</button>			
+			</form>
+		
+		</div>
+	</body>
+</html>
