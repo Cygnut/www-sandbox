@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<HTML>
+	<head>
+		<script type="text/javascript" src="datafileAX.js">
+		</script>
+		<script type="text/JavaScript">
+			function datafileAXEventStatus(NewStatus,OldStatus)
+			{
+				tStatus.innerText="Status 0x:"+NewStatus.toString(16);
+				if (NewStatus==1 && OldStatus==0)
+				{
+					ExcludeStatusByte();
+					scanTodaysDogs(1001);
+				}
+			}
+		
+			function datafileAXEventFileUpdate(FileId)
+			{
+				if ( FileId==1001)
+					scanTodaysDogs(1001);
+				else
+					refresh(FileId);
+			}
+		
+			function scanTodaysDogs(FileId)
+			{
+				var noRepeats=GetFileNumberOfRepeats(FileId);
+				var sHyper="";
+				for ( var r=1; r<=noRepeats; r++)
+				{
+					sHyper=GetFileRecordValue(FileId,1,r);
+					if ( sHyper.charAt(0)=='X')
+					{
+						var wId=sHyper.substr(1);
+						ClearWatchList(wId);
+					}
+					else if ( sHyper.charAt(0)=='F')
+					{
+						var wId=parseInt(sHyper.substr(1));
+						refresh(wId);
+						break;
+					}
+				}
+			}
+			function refresh(FileId)
+			{
+				rName.innerText=GetFileRecordValue(FileId,8,0)+" "+GetFileRecordValue(FileId,34,0);
+				var noRepeats=GetFileNumberOfRepeats(FileId);
+				var sNums="";
+				var sParts="";
+				var sOdds="";
+				for ( var cnt=1; cnt <= noRepeats; cnt++)
+				{
+					sNums=sNums+GetFileRecordValue(FileId,1,cnt)+"\n";
+					sParts=sParts+GetFileRecordValue(FileId,2,cnt)+"\n";
+					for ( var od=0; od < 8; od++)
+					{
+						sOdds=sOdds+GetFileRecordValue(FileId,17+od,cnt)+" ";
+					}
+					sOdds=sOdds+"\n";
+				}
+				rNumber.innerText=sNums;
+				rPart.innerText=sParts;
+				rOdds.innerText=sOdds;
+			}
+		</script>
+	</head>
+	<body style="background-color: #cccccc; width: 317px; height: 42px;">
+		<p id="tStatus" style="position: absolute;top:3px;left:380px">Status?</p>
+		<p id="rName" style="position: absolute; left:20px; top:50px">Race Meeting</p>
+		<div id="rNumber" style="position: absolute; left:20px; top:100px">....</div>
+		<div id="rPart" style="position: absolute; left:50px; top:100px">....</div>
+		<div id="rOdds" style="position: absolute; left:230px; top:100px">....</div>
+	</body>
+</html>
