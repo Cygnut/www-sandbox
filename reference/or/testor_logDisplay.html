@@ -1,288 +1,288 @@
 <html>
-	<head>
-		<title>testor_logDisplay</title>
-		
-		<style>
-		table {
-			width:100%;
-		}
-		table, th, td {
-			border: 1px solid black;
-			border-collapse: collapse;
-		}
-		th, td {
-			padding: 5px;
-			text-align: left;
-		}
-		table#log th	{
-			background-color: black;
-			color: white;
-		}		
-		label {
-			width:90px;
-			clear:left;
-			text-align:right;
-			padding-right:10px;
-		}
-		input, label {
-			float:left;
-		}
-		</style>
-		<script	type='text/JavaScript' src='http://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js'></script>
-		<script type="text/javascript">
+    <head>
+        <title>testor_logDisplay</title>
+        
+        <style>
+        table {
+            width:100%;
+        }
+        table, th, td {
+            border: 1px solid black;
+            border-collapse: collapse;
+        }
+        th, td {
+            padding: 5px;
+            text-align: left;
+        }
+        table#log th    {
+            background-color: black;
+            color: white;
+        }        
+        label {
+            width:90px;
+            clear:left;
+            text-align:right;
+            padding-right:10px;
+        }
+        input, label {
+            float:left;
+        }
+        </style>
+        <script    type='text/JavaScript' src='http://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js'></script>
+        <script type="text/javascript">
 
-			
-			// gets a parameter from the URL by name
-			function getURLParameter(name) 
-			{
-				name = name.replace(/[\[]/, "\\\[").replace(/[\]]/, "\\\]");
-				var regex = new RegExp("[\\?&]" + name + "=([^&#]*)"),
-					results = regex.exec(location.search);
-				return results == null ? "" : decodeURIComponent(results[1].replace(/\+/g, " "));
-			}
-			
-			
-			function requestData(path, pathParams, queryParams, callback)
-			{
-				var urlString = path;
-				if (pathParams)
-				{
-					urlString += ("/" + pathParams);
-					if (queryParams)
-					{
-						urlString += ("?" + queryParams);
-					}
-				}
-					
-				// this allows cross domain calls
-				jQuery.support.cors = true;
-				
-				// this is the AJAX call
-				$.ajax({
-					//type: "GET",
-					url: urlString,
-					//data: { responseFormat: "json" },
-					//contentType: "application/json; charset=utf-8",
-					//dataType: "text"
-					dataType: "json"
-				})
-				.always(function(data, textStatus, errorThrown) {
-					callback(data);
-				});		
-			}
-						
-			function requestLog(host, port, filter, callback)
-			{
-				requestData("http://" + host + ":" + port, "Auxiliary/GetLog", $.param(filter) + "&responseFormat=json", callback);
-			}
-			
-			function onRefresh()
-			{
-				refresh();
-			}
-			
-			function onChange()
-			{
-				refresh();
-			}
-			
-			function getTextField(name)
-			{
-				return document.getElementById(name).value;
-			}
-						
-			function refresh()
-			{
-				if (paused === true)
-					return;
-			
-				var host = getTextField("host");
-				var port = getTextField("port");
-				
-				var filter = 
-				{
-					log : getTextField("logType"),
-					from : getTextField("from"),
-					to : getTextField("to"),
-					indexFrom : getTextField("indexFrom"),
-					indexTo : getTextField("indexTo"),
-					msg : getTextField("message"),
-					level : document.getElementById("level").value,
-					topN : getTextField("topN"),
-					orderBy : getTextField("orderBy")
-				};				
-				
-				requestLog(host, port, filter, function(data) { onLogResponse(data); });
-			}
-			
-			function setMessageCountLabel(count)
-			{
-				document.getElementById('messageCount').innerHTML = count + " message(s) shown";
-			}
-			
-			function addNextCell(row, text)
-			{
-				var cell = row.insertCell(row.cells.length);
-				cell.innerHTML = text;
-			}
-			
-			function getRowColor(type)
-			{
-				if (type === "error")
-					//return "#FF8080";
-					return "#FFB2B2";
-				else if (type === "warning")
-					//return "#FFFF80";
-					return "#FFFF99";
-				else return "#FFFFFF";
-			}
-			
-			function onLogResponse(data)
-			{
-				var table = document.getElementById("log");
-				
-				// Empty the displayed data.
-				while (table.hasChildNodes())
-					table.removeChild(table.firstChild);
-					
-				setMessageCountLabel(0);
+            
+            // gets a parameter from the URL by name
+            function getURLParameter(name) 
+            {
+                name = name.replace(/[\[]/, "\\\[").replace(/[\]]/, "\\\]");
+                var regex = new RegExp("[\\?&]" + name + "=([^&#]*)"),
+                    results = regex.exec(location.search);
+                return results == null ? "" : decodeURIComponent(results[1].replace(/\+/g, " "));
+            }
+            
+            
+            function requestData(path, pathParams, queryParams, callback)
+            {
+                var urlString = path;
+                if (pathParams)
+                {
+                    urlString += ("/" + pathParams);
+                    if (queryParams)
+                    {
+                        urlString += ("?" + queryParams);
+                    }
+                }
+                    
+                // this allows cross domain calls
+                jQuery.support.cors = true;
+                
+                // this is the AJAX call
+                $.ajax({
+                    //type: "GET",
+                    url: urlString,
+                    //data: { responseFormat: "json" },
+                    //contentType: "application/json; charset=utf-8",
+                    //dataType: "text"
+                    dataType: "json"
+                })
+                .always(function(data, textStatus, errorThrown) {
+                    callback(data);
+                });        
+            }
+                        
+            function requestLog(host, port, filter, callback)
+            {
+                requestData("http://" + host + ":" + port, "Auxiliary/GetLog", $.param(filter) + "&responseFormat=json", callback);
+            }
+            
+            function onRefresh()
+            {
+                refresh();
+            }
+            
+            function onChange()
+            {
+                refresh();
+            }
+            
+            function getTextField(name)
+            {
+                return document.getElementById(name).value;
+            }
+                        
+            function refresh()
+            {
+                if (paused === true)
+                    return;
+            
+                var host = getTextField("host");
+                var port = getTextField("port");
+                
+                var filter = 
+                {
+                    log : getTextField("logType"),
+                    from : getTextField("from"),
+                    to : getTextField("to"),
+                    indexFrom : getTextField("indexFrom"),
+                    indexTo : getTextField("indexTo"),
+                    msg : getTextField("message"),
+                    level : document.getElementById("level").value,
+                    topN : getTextField("topN"),
+                    orderBy : getTextField("orderBy")
+                };                
+                
+                requestLog(host, port, filter, function(data) { onLogResponse(data); });
+            }
+            
+            function setMessageCountLabel(count)
+            {
+                document.getElementById('messageCount').innerHTML = count + " message(s) shown";
+            }
+            
+            function addNextCell(row, text)
+            {
+                var cell = row.insertCell(row.cells.length);
+                cell.innerHTML = text;
+            }
+            
+            function getRowColor(type)
+            {
+                if (type === "error")
+                    //return "#FF8080";
+                    return "#FFB2B2";
+                else if (type === "warning")
+                    //return "#FFFF80";
+                    return "#FFFF99";
+                else return "#FFFFFF";
+            }
+            
+            function onLogResponse(data)
+            {
+                var table = document.getElementById("log");
+                
+                // Empty the displayed data.
+                while (table.hasChildNodes())
+                    table.removeChild(table.firstChild);
+                    
+                setMessageCountLabel(0);
 
-				// If there is no log, then we're done.
-				if (!data.hasOwnProperty("Log") || !data.Log.hasOwnProperty("Entries") || !data.Log.Entries.hasOwnProperty("children"))
-					return;
-					
-				// Create the header unless it is already present.
-				
-				var header = table.createTHead();
-				if (header.rows.length == 0)
-				{
-					var row = header.insertRow(0);
-					addNextCell(row, "<b>Level</b>");
-					addNextCell(row, "<b>Time</b>");
-					
-					if (data.Log.Log === "*client")
-					{
-						addNextCell(row, "<b>Url<b>");
-						addNextCell(row, "<b>Screen</b>");
-					}
-					
-					addNextCell(row, "<b>Message</b>");
-				}
-				
-				// Populate the table
-				
-				for (var i = 0; i < data.Log.Entries.children.length; ++i)
-				{
-					var row = table.insertRow(-1);
-					var e = data.Log.Entries.children[i].Entry;
-					
-					//e.Index
-					//e.Browser
-					addNextCell(row, e.Type);
-					addNextCell(row, e.TimeGenerated);
-					if (data.Log.Log === "*client")
-					{
-						addNextCell(row, e.Url);
-						addNextCell(row, e.Screen);
-					}
-					addNextCell(row, e.Message);
-					
-					row.style.backgroundColor = getRowColor(e.Type);
-				}
-				
-				setMessageCountLabel(data.Log.Entries.children.length);
-			}
-			
-			function onRefreshIntervalChange()
-			{
-				onPause();
-				onResume();
-			}
-			
-			function getRefreshInterval()
-			{
-				return (parseInt(getTextField("refreshInterval")) || 30) * 1000;
-			}
-			
-			var paused;
-			var timerId;
-			function onPause()
-			{
-				paused = true;
-			
-				if (timerId != null)
-					clearInterval(timerId);				
-			}
-			
-			function onResume()
-			{
-				onPause();					
-				paused = false;
-				
-				refresh();
-				timerId = setInterval(function() { refresh(); }, getRefreshInterval());				
-			}
-				
-			$(document).ready(function() {
-				if (getURLParameter("startPaused") != "true")				
-					onResume()
-			});			
+                // If there is no log, then we're done.
+                if (!data.hasOwnProperty("Log") || !data.Log.hasOwnProperty("Entries") || !data.Log.Entries.hasOwnProperty("children"))
+                    return;
+                    
+                // Create the header unless it is already present.
+                
+                var header = table.createTHead();
+                if (header.rows.length == 0)
+                {
+                    var row = header.insertRow(0);
+                    addNextCell(row, "<b>Level</b>");
+                    addNextCell(row, "<b>Time</b>");
+                    
+                    if (data.Log.Log === "*client")
+                    {
+                        addNextCell(row, "<b>Url<b>");
+                        addNextCell(row, "<b>Screen</b>");
+                    }
+                    
+                    addNextCell(row, "<b>Message</b>");
+                }
+                
+                // Populate the table
+                
+                for (var i = 0; i < data.Log.Entries.children.length; ++i)
+                {
+                    var row = table.insertRow(-1);
+                    var e = data.Log.Entries.children[i].Entry;
+                    
+                    //e.Index
+                    //e.Browser
+                    addNextCell(row, e.Type);
+                    addNextCell(row, e.TimeGenerated);
+                    if (data.Log.Log === "*client")
+                    {
+                        addNextCell(row, e.Url);
+                        addNextCell(row, e.Screen);
+                    }
+                    addNextCell(row, e.Message);
+                    
+                    row.style.backgroundColor = getRowColor(e.Type);
+                }
+                
+                setMessageCountLabel(data.Log.Entries.children.length);
+            }
+            
+            function onRefreshIntervalChange()
+            {
+                onPause();
+                onResume();
+            }
+            
+            function getRefreshInterval()
+            {
+                return (parseInt(getTextField("refreshInterval")) || 30) * 1000;
+            }
+            
+            var paused;
+            var timerId;
+            function onPause()
+            {
+                paused = true;
+            
+                if (timerId != null)
+                    clearInterval(timerId);                
+            }
+            
+            function onResume()
+            {
+                onPause();                    
+                paused = false;
+                
+                refresh();
+                timerId = setInterval(function() { refresh(); }, getRefreshInterval());                
+            }
+                
+            $(document).ready(function() {
+                if (getURLParameter("startPaused") != "true")                
+                    onResume()
+            });            
 
-			
-		</script>
-	</head>
-	<body>
-		<div>
-			
-			<form>
-				<fieldset>
-					<legend>Connection</legend>
-					<p><label>Host</label><input type="text" id="host" value="localhost" onChange="onChange()"/></p>
-					<p><label>Port</label><input type="text" id="port" value="3131" onChange="onChange()"/></p>
-				</fieldset>	
-				<fieldset>
-					<legend>Query</legend>
-					<p><label>Log</label>
-					<select id="logType" onChange="onChange()" required>
-					  <option value="*client">Client</option>
-					  <option value="*os">os</option>
-					  <option value="*o">o</option>
-					</select>
-					</p>
-					<p><label>From</label><input type="text" id="from" value="" onChange="onChange()"/></p>
-					<p><label>To</label><input type="text" id="to" value="00:00:00" onChange="onChange()"/></p>
-					<br>
-					<br>
-					<p><label>Index From</label><input type="text" id="indexFrom" value="" onChange="onChange()"/></p>
-					<p><label>Index To</label><input type="text" id="indexTo" value="" onChange="onChange()"/></p>
-					<br>
-					<br>
-					<p><label>Message</label><input type="text" id="message" value="" onChange="onChange()"/></p>
-					<br>
-					<p><label>Level</label>
-					<select id="level" onChange="onChange()" required>
-					  <option value="error">Error</option>
-					  <option value="warning">Warning</option>
-					  <option value="information">Information</option>
-					</select>
-					</p>
-					<p><label>Order By</label><input type="text" id="orderBy" value="" onChange="onChange()"/></p>
-					<p><label>TopN</label><input type="text" id="topN" value="1000" onChange="onChange()"/></p>
-					<br>
-					<br>
-					<p><label>Refresh Interval</label><input type="text" id="refreshInterval" value="30" onChange="onRefreshIntervalChange()"/></p>
-				</fieldset>
-				
-				<br>
-				<input type="button" value="Resume" onclick="onResume()"/></button>
-				<input type="button" value="Pause" onclick="onPause()"/></button>	
-				<br>				
+            
+        </script>
+    </head>
+    <body>
+        <div>
+            
+            <form>
+                <fieldset>
+                    <legend>Connection</legend>
+                    <p><label>Host</label><input type="text" id="host" value="localhost" onChange="onChange()"/></p>
+                    <p><label>Port</label><input type="text" id="port" value="3131" onChange="onChange()"/></p>
+                </fieldset>    
+                <fieldset>
+                    <legend>Query</legend>
+                    <p><label>Log</label>
+                    <select id="logType" onChange="onChange()" required>
+                      <option value="*client">Client</option>
+                      <option value="*os">os</option>
+                      <option value="*o">o</option>
+                    </select>
+                    </p>
+                    <p><label>From</label><input type="text" id="from" value="" onChange="onChange()"/></p>
+                    <p><label>To</label><input type="text" id="to" value="00:00:00" onChange="onChange()"/></p>
+                    <br>
+                    <br>
+                    <p><label>Index From</label><input type="text" id="indexFrom" value="" onChange="onChange()"/></p>
+                    <p><label>Index To</label><input type="text" id="indexTo" value="" onChange="onChange()"/></p>
+                    <br>
+                    <br>
+                    <p><label>Message</label><input type="text" id="message" value="" onChange="onChange()"/></p>
+                    <br>
+                    <p><label>Level</label>
+                    <select id="level" onChange="onChange()" required>
+                      <option value="error">Error</option>
+                      <option value="warning">Warning</option>
+                      <option value="information">Information</option>
+                    </select>
+                    </p>
+                    <p><label>Order By</label><input type="text" id="orderBy" value="" onChange="onChange()"/></p>
+                    <p><label>TopN</label><input type="text" id="topN" value="1000" onChange="onChange()"/></p>
+                    <br>
+                    <br>
+                    <p><label>Refresh Interval</label><input type="text" id="refreshInterval" value="30" onChange="onRefreshIntervalChange()"/></p>
+                </fieldset>
+                
+                <br>
+                <input type="button" value="Resume" onclick="onResume()"/></button>
+                <input type="button" value="Pause" onclick="onPause()"/></button>    
+                <br>                
 
-			</form>			
-		
-			<label id="messageCount"></label>
-			<table id="log"></table>
-		
-		</div>
-	</body>
+            </form>            
+        
+            <label id="messageCount"></label>
+            <table id="log"></table>
+        
+        </div>
+    </body>
 </html>

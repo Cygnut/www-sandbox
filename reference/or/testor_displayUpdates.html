@@ -1,150 +1,150 @@
 <html>
-	<head>
-		<title>testor_displayUpdates</title>
-		<script type="text/javascript" src="orInclude.js">
-		</script>
-		<script type="text/javascript">
-		
-			var refineUpdates = true;	// Default value of refineUpdates. Configurable by query string parameter.
-		
-			//
-			// Purely exercises the LiveUpdates functionality of or on a set of passed ids, subscribing 
-			// for updates on their events.
-			// Only logs the time and channels updated.
-			//		
-		
-			function getChannelsFromIds(ids)
-			{
-				var channels = [];
-			
-				if (ids == "")
-					return channels;
+    <head>
+        <title>testor_displayUpdates</title>
+        <script type="text/javascript" src="orInclude.js">
+        </script>
+        <script type="text/javascript">
+        
+            var refineUpdates = true;    // Default value of refineUpdates. Configurable by query string parameter.
+        
+            //
+            // Purely exercises the LiveUpdates functionality of or on a set of passed ids, subscribing 
+            // for updates on their events.
+            // Only logs the time and channels updated.
+            //        
+        
+            function getChannelsFromIds(ids)
+            {
+                var channels = [];
+            
+                if (ids == "")
+                    return channels;
 
-				// set the required channels for updates
-				// Subscribe for updates on the event channel descendants and the the event channel itself
-				
-				var idParts = ids.split(",");
-				
-				for (i = 0; i < idParts.length; i++)
-				{
-					channels.push("sEVENTf" + idParts[i] + "e1");
-					channels.push("SEVENTf" + idParts[i] + "e1");					
-				}
-				
-				return channels;			
-			}
-					
-			function getChannelsFromChannels(channels)
-			{
-				if (channels == "")
-					return [];
-				
-				return channels.split(",");
-			}
-		
-		
-			$(document).ready(function() {
-				
-				if (getURLParameter("refineUpdates") === "false")
-					refineUpdates = false;
-				
-				var channels = [];
+                // set the required channels for updates
+                // Subscribe for updates on the event channel descendants and the the event channel itself
+                
+                var idParts = ids.split(",");
+                
+                for (i = 0; i < idParts.length; i++)
+                {
+                    channels.push("sEVENTf" + idParts[i] + "e1");
+                    channels.push("SEVENTf" + idParts[i] + "e1");                    
+                }
+                
+                return channels;            
+            }
+                    
+            function getChannelsFromChannels(channels)
+            {
+                if (channels == "")
+                    return [];
+                
+                return channels.split(",");
+            }
+        
+        
+            $(document).ready(function() {
+                
+                if (getURLParameter("refineUpdates") === "false")
+                    refineUpdates = false;
+                
+                var channels = [];
 
-				channels = channels.concat(getChannelsFromIds(getURLParameter("ids")));
-				channels = channels.concat(getChannelsFromChannels(getURLParameter("channels")));
-				
-				if (channels.length == 0)
-					return;
+                channels = channels.concat(getChannelsFromIds(getURLParameter("ids")));
+                channels = channels.concat(getChannelsFromChannels(getURLParameter("channels")));
+                
+                if (channels.length == 0)
+                    return;
 
-				window.document.title = "channels=" + channels.join();
-				appendLine("Subscribed to channels=" + channels.join());
-					
-				or_connect_register("", function(data) { updateCallback(data) }, channels, "!", "");				
-			});
-			
-			
-			function Padder(len, pad) 
-			{
-				if (len === undefined) 
-				{
-					len = 1;
-				} 
-				else if (pad === undefined) 
-				{
-					pad = '0';
-				}
+                window.document.title = "channels=" + channels.join();
+                appendLine("Subscribed to channels=" + channels.join());
+                    
+                or_connect_register("", function(data) { updateCallback(data) }, channels, "!", "");                
+            });
+            
+            
+            function Padder(len, pad) 
+            {
+                if (len === undefined) 
+                {
+                    len = 1;
+                } 
+                else if (pad === undefined) 
+                {
+                    pad = '0';
+                }
 
-				var pads = '';
-				while (pads.length < len) 
-				{
-					pads += pad;
-				}
+                var pads = '';
+                while (pads.length < len) 
+                {
+                    pads += pad;
+                }
 
-				this.pad = function (what) 
-				{
-					var s = what.toString();
-					return pads.substring(0, pads.length - s.length) + s;
-				};
-			}
-			
-			function appendLine(str)
-			{
-				var zero2 = new Padder(2);
-			
-				// Append the entry to the bottom of the div.
-				var d = new Date();
-				var timeString = 
-					zero2.pad(d.getHours())
-					+ ":" + 
-					zero2.pad(d.getMinutes())
-					+ ":" + 
-					zero2.pad(d.getSeconds());
-				$("#text").append("<br>[" + timeString + "] " + str + "</br>");
-				
-				// Then ensure it's visible by scrolling to the bottom of the div.
-				window.scrollTo(0,document.body.scrollHeight);
-			}
-			
-			var channelCache = [];
-			
-			// This is called for each channel update.
-			// data contains a single channel!
-			function updateCallback(data)
-			{	
-				if (refineUpdates == false)
-					appendLine("Update to channel " + data.subject_id + " with data : " + data.data);
-				else
-				{
-					// Cache the data on the first request (the '!' one). Then compare any updates against this to work out the exact record which has changed.					
-					if (data.subject_id in channelCache)
-					{
-						// Then compare the current data to the updated data.
-						var oldData = $.parseJSON(channelCache[data.subject_id].data);
-						var newData = $.parseJSON(data.data);
-						
-						for (var p in newData)
-						{
-							if (oldData.hasOwnProperty(p))
-							{
-								// Then oldData and newData have the same property. Compare it for equality.
-								if (!(newData[p] === oldData[p]))
-									// Then the same property has been updated.
-									appendLine("Channel " + data.subject_id + " updated " + p + " : " + oldData[p] + " => " + newData[p]);
-							}
-							else
-								// Then newData has introduced a new property.
-								appendLine("Channel " + data.subject_id + " added " + p + " " + newData[p]);
-						}
-					}
-					
-					// Update the cache.
-					channelCache[data.subject_id] = data;
-				}
-			}
-		</script>
-	</head>
-	<body>
-		<div id="text">
-		</div>
-	</body>
+                this.pad = function (what) 
+                {
+                    var s = what.toString();
+                    return pads.substring(0, pads.length - s.length) + s;
+                };
+            }
+            
+            function appendLine(str)
+            {
+                var zero2 = new Padder(2);
+            
+                // Append the entry to the bottom of the div.
+                var d = new Date();
+                var timeString = 
+                    zero2.pad(d.getHours())
+                    + ":" + 
+                    zero2.pad(d.getMinutes())
+                    + ":" + 
+                    zero2.pad(d.getSeconds());
+                $("#text").append("<br>[" + timeString + "] " + str + "</br>");
+                
+                // Then ensure it's visible by scrolling to the bottom of the div.
+                window.scrollTo(0,document.body.scrollHeight);
+            }
+            
+            var channelCache = [];
+            
+            // This is called for each channel update.
+            // data contains a single channel!
+            function updateCallback(data)
+            {    
+                if (refineUpdates == false)
+                    appendLine("Update to channel " + data.subject_id + " with data : " + data.data);
+                else
+                {
+                    // Cache the data on the first request (the '!' one). Then compare any updates against this to work out the exact record which has changed.                    
+                    if (data.subject_id in channelCache)
+                    {
+                        // Then compare the current data to the updated data.
+                        var oldData = $.parseJSON(channelCache[data.subject_id].data);
+                        var newData = $.parseJSON(data.data);
+                        
+                        for (var p in newData)
+                        {
+                            if (oldData.hasOwnProperty(p))
+                            {
+                                // Then oldData and newData have the same property. Compare it for equality.
+                                if (!(newData[p] === oldData[p]))
+                                    // Then the same property has been updated.
+                                    appendLine("Channel " + data.subject_id + " updated " + p + " : " + oldData[p] + " => " + newData[p]);
+                            }
+                            else
+                                // Then newData has introduced a new property.
+                                appendLine("Channel " + data.subject_id + " added " + p + " " + newData[p]);
+                        }
+                    }
+                    
+                    // Update the cache.
+                    channelCache[data.subject_id] = data;
+                }
+            }
+        </script>
+    </head>
+    <body>
+        <div id="text">
+        </div>
+    </body>
 </html>
